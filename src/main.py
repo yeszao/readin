@@ -9,7 +9,7 @@ from src.utils.number_utils import short_number
 
 app = Flask(__name__)
 app.secret_key = 'JDYUF82opufd89sa!@8(u23o'
-
+init_logging(LOG_DIR.joinpath("web.log"))
 
 app.register_blueprint(home_route.bp)
 app.register_blueprint(auth_route.bp)
@@ -19,15 +19,10 @@ app.register_blueprint(tool_route.bp)
 
 
 @app.context_processor
-def inject_custom_function():
+def inject_functions_and_variables():
     return dict(
         short_number=short_number,
         time_ago=time_ago,
-    )
-
-@app.context_processor
-def inject_global_variables():
-    return dict(
         static_version=STATIC_VERSION,
         languages=SUPPORTED_LANGUAGES,
         user_settings={
@@ -40,5 +35,4 @@ def inject_global_variables():
 
 
 if __name__ == '__main__':
-    init_logging(LOG_DIR.joinpath("web.log"))
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=9000, debug=True)

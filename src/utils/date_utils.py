@@ -1,19 +1,26 @@
 from datetime import datetime, timedelta, timezone
 
 
-timezone = timezone.utc
+utc_tz = timezone.utc
+
+def get_now():
+    return datetime.now(utc_tz)
+
+
+def get_delta_days(days: int) -> datetime:
+    return get_now() + timedelta(days=days)
 
 
 def get_now_filename():
-    return datetime.now().strftime("%Y%m%d%H%M%S")
+    return get_now().strftime("%Y%m%d%H%M%S")
 
 
 def get_today():
-    return datetime.now().strftime("%Y-%m-%d")
+    return get_now().strftime("%Y-%m-%d")
 
 
 def get_yesterday():
-    return (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    return (get_now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
 
 def str_to_datetime(date_str):
@@ -21,11 +28,11 @@ def str_to_datetime(date_str):
 
 
 def set_utc_tz(given_datetime: datetime) -> datetime:
-    return given_datetime.replace(tzinfo=timezone)
+    return given_datetime.replace(tzinfo=utc_tz)
 
 
 def time_ago(utc_datetime):
-    now = datetime.now(timezone)
+    now = get_now()
     diff = now - set_utc_tz(utc_datetime)
 
     seconds = diff.total_seconds()

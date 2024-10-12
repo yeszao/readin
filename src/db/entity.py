@@ -40,5 +40,29 @@ class Sentence(Base):
     )
 
 
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime, nullable=False, index=True, default=datetime.now)
+    updated_at = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    oauth_id = Column(String(50), nullable=False, unique=True)
+    email = Column(String(200), nullable=False, unique=True)
+    name = Column(String(80), nullable=False, default="")
+    premium_expired_at = Column(DateTime, nullable=False)
+    last_login_at = Column(DateTime, nullable=False, default=datetime.now)
+
+    def __dict__(self):
+        return {
+            "id": self.id,
+            "oauth_id": self.oauth_id,
+            "email": self.email,
+            "name": self.name,
+            "premium_expired_at": self.premium_expired_at,
+            "last_login_at": self.last_login_at
+        }
+
+
 if __name__ == '__main__':
     Base.metadata.create_all(DbEngine)

@@ -5,7 +5,7 @@ from src.config import HOME_NEWS_NUM, BOOKS_GENERATED_DIR
 from src.db.news_dao import NewsDao
 from src.utils.book_utils import get_book_objects
 
-bp = Blueprint('news', __name__)
+bp = Blueprint('home', __name__)
 
 @bp.get("/health")
 def health():
