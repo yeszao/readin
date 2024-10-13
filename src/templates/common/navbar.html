@@ -9,11 +9,14 @@
                         <a class="nav-link active" aria-current="page" href="/">Books</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('get_all_news') }}">News</a>
+                        <a class="nav-link" href="{{ url_for('news.get_all_news') }}">News</a>
                     </li>
                 </ul>
 
                 <div>
+                  <a type="button" class="btn btn-outline-success btn-sm"
+                      href="{{ url_for('auth.login') }}" id="login-btn" rel="nofollow"
+                  >Login</a>
                     <button type="button" class="btn btn-outline-success btn-sm" id="setting-btn"
                             data-bs-toggle="modal" data-bs-target="#settings-modal"
                     >Settings</button>

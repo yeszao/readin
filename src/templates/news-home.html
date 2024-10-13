@@ -4,7 +4,7 @@
     <title>{{ sitename }} - Featured Books For English Learning</title>
     <meta name="description" content="Readin offers three classic English books, complete with word and sentence translations, tailored for English learners seeking to improve their language skills.">
 
-    <link rel="canonical" href="{{ url_for('get_all_news') }}" />
+    <link rel="canonical" href="{{ url_for('news.get_all_news') }}" />
     {% include 'common/head_meta.html' %}
 </head>
 <body class="{% if user_settings.darkMode == 'dark' %}bg-dark text-light{% endif %}" style="font-size: {{ user_settings.fontSize }};">
@@ -17,7 +17,7 @@
         <ol>
             {%  for n in all_news %}
                 <li class="my-2">
-                    <a href="{{ url_for('get_news', id=n.id) }}">{{ n.title }}</a>
+                    <a href="{{ url_for('news.get_news', id=n.id) }}">{{ n.title }}</a>
                     <span class="small text-muted fw-light"> - {{ n.publication }}, {{ n.date|time_ago }}</span>
                 </li>
             {% endfor %}
@@ -29,13 +29,13 @@
             <ul class="pagination justify-content-center">
                 {% if page > 1 %}
                 <li class="page-item me-3">
-                    <a href="{{ url_for('get_all_news', page=page-1) }}">Prev</a>
+                    <a href="{{ url_for('news.get_all_news', page=page-1) }}">Prev</a>
                 </li>
                 {% endif %}
 
                 {% if news_count != 0 %}
                 <li class="page-item">
-                    <a href="{{ url_for('get_all_news', page=page+1) }}">Next</a>
+                    <a href="{{ url_for('news.get_all_news', page=page+1) }}">Next</a>
                 </li>
                 {% endif %}
             </ul>

@@ -17,12 +17,12 @@ app.register_blueprint(book_route.bp)
 app.register_blueprint(news_route.bp)
 app.register_blueprint(tool_route.bp)
 
+app.jinja_env.filters['short_number'] = short_number
+app.jinja_env.filters['time_ago'] = time_ago
 
 @app.context_processor
-def inject_functions_and_variables():
+def inject_global_variables():
     return dict(
-        short_number=short_number,
-        time_ago=time_ago,
         static_version=STATIC_VERSION,
         languages=SUPPORTED_LANGUAGES,
         user_settings={

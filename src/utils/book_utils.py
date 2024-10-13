@@ -50,7 +50,7 @@ def get_prev_next_chapter_urls(book: Book, chapter_no: int) -> (str, str):
 
 
 def generate_chapter_url(book_slug: str, chapter_no: int) -> str:
-    return url_for('get_chapter', book_slug=book_slug, chapter_no=chapter_no)
+    return url_for('book.get_chapter', book_slug=book_slug, chapter_no=chapter_no)
 
 
 def get_book_objects() -> List[Book]:

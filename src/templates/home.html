@@ -15,12 +15,12 @@
             {% for book in books %}
                 <div class="d-flex justify-content-center">
                     <div class="card mt-3 border-0 text-center" style="width: 10rem;">
-                        <a href="{{ url_for('get_book', book_slug=book.slug) }}">
+                        <a href="{{ url_for('book.get_book', book_slug=book.slug) }}">
                             <img src="{{ book.cover }}" class="card-img-top cover" alt="{{ book.name }}">
                         </a>
                         <div class="card-body p-0">
                             <h5 class="card-title">
-                                <a href="{{ url_for('get_book', book_slug=book.slug) }}">
+                                <a href="{{ url_for('book.get_book', book_slug=book.slug) }}">
                                     {{ book.name }}
                                 </a>
                             </h5>
@@ -37,11 +37,11 @@
     </section>
 
     <section class="container box my-5">
-        <h2 class="fs-5"><a href="{{ url_for('get_all_news') }}">News</a></h2>
+        <h2 class="fs-5"><a href="{{ url_for('news.get_all_news') }}">News</a></h2>
         <ol>
             {%  for n in news %}
                 <li>
-                    <a href="{{ url_for('get_news', id=n.id) }}">{{ n.title }}</a>
+                    <a href="{{ url_for('news.get_news', id=n.id) }}">{{ n.title }}</a>
                     <span class="small text-muted fw-light"> - {{ n.publication }}, {{ n.date|time_ago }}</span>
                 </li>
             {% endfor %}
