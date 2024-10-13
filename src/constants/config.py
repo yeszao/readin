@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-APP_DIR = Path(__file__).parent.parent
+APP_DIR = Path(__file__).parent.parent.parent
 SRC_DIR = APP_DIR.joinpath("src")
 CACHE_DIR = APP_DIR.joinpath("cache")
 LOG_DIR = CACHE_DIR.joinpath("logs")
@@ -28,5 +28,6 @@ GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
 GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
 
 TRIAL_PERIOD = int(os.getenv("TRIAL_PERIOD", 3))
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 
 STATIC_VERSION = os.getenv("STATIC_VERSION", "1")

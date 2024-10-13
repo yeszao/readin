@@ -1,7 +1,7 @@
 import json
 import logging
 
-from src.config import CACHE_DIR, LOG_DIR
+from src.constants.config import CACHE_DIR, LOG_DIR
 from src.db.entity import News
 from src.utils.chapter_utils import tagged_html
 from src.utils.date_utils import get_now_filename, str_to_datetime

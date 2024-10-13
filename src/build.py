@@ -4,8 +4,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from pydantic import BaseModel
 
-from src.config import BOOKS_GENERATED_DIR, BOOKS_DIR
-from src.utils.book_utils import get_book_objects, Book, get_chapters, Chapter
+from src.constants.config import BOOKS_GENERATED_DIR, BOOKS_DIR
+from src.utils.book_utils import get_book_objects, Book, get_chapters
 from src.utils.chapter_utils import tagged_html
 
 

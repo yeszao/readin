@@ -1,8 +1,8 @@
 from flask import Flask, request, session
 
-from src.config import STATIC_VERSION, LOG_DIR
-from src.languages import SUPPORTED_LANGUAGES
-from src.routes import home_route, auth_route, book_route, news_route, tool_route
+from src.constants.config import STATIC_VERSION, LOG_DIR
+from src.constants.languages import SUPPORTED_LANGUAGES
+from src.routes import home_route, auth_route, book_route, news_route, tool_route, bill_route
 from src.utils.date_utils import time_ago
 from src.utils.logging_utils import init_logging
 from src.utils.number_utils import short_number
@@ -16,6 +16,7 @@ app.register_blueprint(auth_route.bp)
 app.register_blueprint(book_route.bp)
 app.register_blueprint(news_route.bp)
 app.register_blueprint(tool_route.bp)
+app.register_blueprint(bill_route.bp)
 
 app.jinja_env.filters['short_number'] = short_number
 app.jinja_env.filters['time_ago'] = time_ago

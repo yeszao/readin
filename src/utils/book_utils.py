@@ -4,7 +4,7 @@ from typing import List, Dict
 
 from flask import url_for
 
-from src.config import BOOKS_DIR
+from src.constants.config import BOOKS_DIR
 
 
 @dataclass

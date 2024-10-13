@@ -1,6 +1,6 @@
 from authlib.oidc.core import UserInfo
 
-from src.config import TRIAL_PERIOD
+from src.constants.config import TRIAL_PERIOD
 from src.db.engine import DbSession
 from src.db.entity import User
 from src.utils.date_utils import get_now, get_delta_days

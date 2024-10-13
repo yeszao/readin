@@ -12,7 +12,7 @@
             <a class="nav-link" href="{{ url_for('news.get_all_news') }}">News</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Pricing</a>
+            <a class="nav-link" href="{{ url_for('bill.pricing') }}">Pricing</a>
           </li>
         </ul>
       </div>
@@ -31,7 +31,7 @@
               </a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <li><a class="dropdown-item" href="#">My Vocabulary</a></li>
-                <li><a class="dropdown-item" href="#">My Sentences</a></li>
+                <li><a class="dropdown-item" href="">My Sentences</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}" rel="nofollow">Logout</a></li>
               </ul>
             </li>

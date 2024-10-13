@@ -1,7 +1,7 @@
 import json
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template
 
-from src.config import HOME_NEWS_NUM, BOOKS_GENERATED_DIR
+from src.constants.config import HOME_NEWS_NUM, BOOKS_GENERATED_DIR
 from src.db.news_dao import NewsDao
 from src.utils.book_utils import get_book_objects
 

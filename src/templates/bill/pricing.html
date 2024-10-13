@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Pricing - {{ sitename }}</title>
+  <meta name="description" content="The premium features of {{ sitename }}, learn English easier!">
+  {% include 'common/head_meta.html' %}
+</head>
+<body class="{% if user_settings.darkMode == 'dark' %}bg-dark text-light{% endif %}"
+      style="font-size: {{ user_settings.fontSize }};">
+
+{% include 'common/navbar.html' %}
+
+<main>
+  <section class="container box my-4">
+      <h1 class="text-center py-3">Pricing</h1>
+  </section>
+
+  <section class="container box my-4">
+    <div class="row row-cols-1 row-cols-md-2 text-center">
+      {% for price in prices %}
+        <div class="col">
+          <div class="card mb-4 rounded-3 shadow-sm {% if price.highlight %}border-success{% endif %}">
+            <div class="card-header py-3 {% if price.highlight %}border-success bg-success text-white{% endif %}">
+              <h4 class="my-0 fw-normal">{{ price.name }}</h4>
+            </div>
+            <div class="card-body">
+              <div class="card-subtitle pricing-card-title fw-light">
+                                <span class="text-decoration-line-through">
+                                    {% if price.market_price %}
+                                      ¥{{ price.market_price }}/{{ price.expand_months }}个月
+                                    {% else %}
+                                      -
+                                    {% endif %}
+                                </span>
+              </div>
+              <h1 class="card-title pricing-card-title">
+                                <span>¥{{ price.selling_price }}
+                                  {% if price.selling_price %}
+                                    <small class="text-muted fw-light">/{{ price.expand_months }}个月</small>
+                                  {% endif %}
+                                </span>
+              </h1>
+              <ul class="list-unstyled mt-3 mb-4">
+                {% for feature in price.features %}
+                    <li class="mb-3">
+                      {{ feature.title }} <span class="text-success text-lighter small">{{ feature.count }}</span>
+                    </li>
+                {% endfor %}
+              </ul>
+
+              {% if not user %}
+                <button type="button"
+                        class="w-100 btn {% if price.highlight %}btn-success{% else %}btn-outline-success{% endif %}"
+                        onclick="alert('Please Login')">Login
+                </button>
+              {% else %}
+                <button type="button"
+                        class="w-100 btn buy {% if price.highlight %}btn-success{% else %}btn-outline-success{% endif %}"
+                        data-price-id="{{ price.stripe_price_id }}">Go
+                </button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  </section>
+
+  <section class="container box my-4">
+    <div class="text-muted small">
+      <ul>
+        <li>本站只有开放用户和Pro用户两种用户形式。</li>
+        <li>付费用户到期后，原有的收藏职位个数不会减少，而是在取消收藏后不能重新添加。</li>
+        <li>付费用户到期后，原有的简历个数不会减少，而是在删除后不能创建新的简历。</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+{% include 'common/footer.html' %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        loadReadingProgressToButton('.read-button');
+    });
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@ import json
 
 from flask import Blueprint, render_template
 
-from src.config import BOOKS_GENERATED_DIR
+from src.constants.config import BOOKS_GENERATED_DIR
 from src.utils.book_utils import get_book_slug_map, get_chapters, Chapter, get_prev_next_chapter_urls
 
 bp = Blueprint('book', __name__)

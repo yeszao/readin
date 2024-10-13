@@ -1,9 +1,9 @@
 import requests
 from flask import Blueprint, request, jsonify, stream_with_context, Response
 
-from src.config import DICT_API_KEY, DICT_ENDPOINT, AUDIO_ENDPOINT
+from src.constants.config import DICT_API_KEY, DICT_ENDPOINT, AUDIO_ENDPOINT
 from src.db.sentence_dao import SentenceDao
-from src.languages import LANGUAGES_CODES
+from src.constants.languages import LANGUAGES_CODES
 from src.utils.openai_translator_utils import translate
 
 bp = Blueprint('tool', __name__)
