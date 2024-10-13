@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, session
 
 from src.config import STATIC_VERSION, LOG_DIR
 from src.languages import SUPPORTED_LANGUAGES
@@ -23,6 +23,7 @@ app.jinja_env.filters['time_ago'] = time_ago
 @app.context_processor
 def inject_global_variables():
     return dict(
+        user=session['user'] if 'user' in session else None,
         static_version=STATIC_VERSION,
         languages=SUPPORTED_LANGUAGES,
         user_settings={

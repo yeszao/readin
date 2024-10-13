@@ -14,9 +14,16 @@
                 </ul>
 
                 <div>
+                  {% if user %}
+                    <span class="text-light">{{ user.name }}</span>
+                  <a type="button" class="btn btn-outline-success btn-sm"
+                      href="{{ url_for('auth.logout') }}" id="logout-btn" rel="nofollow">Logout</a>
+                  {% else %}
                   <a type="button" class="btn btn-outline-success btn-sm"
                       href="{{ url_for('auth.login') }}" id="login-btn" rel="nofollow"
                   >Login</a>
+                  {% endif %}
+
                     <button type="button" class="btn btn-outline-success btn-sm" id="setting-btn"
                             data-bs-toggle="modal" data-bs-target="#settings-modal"
                     >Settings</button>
