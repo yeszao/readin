@@ -91,6 +91,19 @@ function playAudio(pronunciationId) {
     audio.play();
 }
 
+function playSentence(text) {
+    // Assuming there's an API endpoint to fetch and play audio by pronunciation ID
+    const audio = new Audio(`${PLAY_SENTENCE_URL}?text=${text}`);
+    audio.play();
+}
+
+const createBtn = function(text) {
+    const btn = document.createElement('button');
+    btn.innerText = text;
+    btn.classList.add("btn", "btn-sm", "btn-outline-secondary", "me-2");
+    return btn;
+}
+
 const initSentenceTranslation = function () {
     const sentence_btn_els = ARTICLE_CONTENT_EL.getElementsByTagName("s");
 
@@ -106,10 +119,11 @@ const initSentenceTranslation = function () {
             const titleDiv = document.createElement('div');
             titleDiv.classList.add('d-flex', 'justify-content-center');
 
-            const button = document.createElement('button');
-            button.innerText = 'Translate';
-            button.classList.add("btn", "btn-sm", "btn-outline-secondary", "me-2");
-            titleDiv.appendChild(button);
+            const translateBtn = createBtn('Translate');
+            titleDiv.appendChild(translateBtn);
+
+            const playBtn = createBtn('Play ၊၊|၊');
+            titleDiv.appendChild(playBtn);
 
             offcanvasTitleEl.appendChild(titleDiv);
 
@@ -122,8 +136,12 @@ const initSentenceTranslation = function () {
                 return;
             }
 
-            button.addEventListener('click', function () {
-                translateSentence(button, sentenceText, offcanvasContentEl, toLang);
+            translateBtn.addEventListener('click', async function () {
+                await translateSentence(translateBtn, sentenceText, offcanvasContentEl, toLang);
+            });
+
+            playBtn.addEventListener('click', function () {
+                playSentence(sentenceText);
             });
         });
     });

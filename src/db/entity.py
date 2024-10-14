@@ -57,5 +57,20 @@ class User(Base):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
+class Glossary(Base):
+    __tablename__ = 'glossaries'
+
+    id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime, nullable=False, index=True, default=datetime.now)
+    updated_at = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    user_id = Column(Integer, nullable=False)
+    word = Column(String(50), nullable=False, unique=True)
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'word'),
+    )
+
+
 if __name__ == '__main__':
     Base.metadata.create_all(DbEngine)

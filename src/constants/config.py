@@ -19,6 +19,7 @@ DB_NAME = os.getenv("DB_NAME", "readin")
 DB_PORT = os.getenv("DB_PORT", 3306)
 
 OPENAI_MODEL = os.getenv("OPENAI_MODEL")
+OPENAI_TTS_MODEL = os.getenv("OPENAI_TTS_MODEL", 'tts-1-hd')
 OPENAI_KEY = os.getenv("OPENAI_KEY")
 
 SERPAPI_KEY = os.getenv("SERPAPI_KEY")

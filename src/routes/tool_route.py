@@ -1,12 +1,13 @@
 import requests
 from flask import Blueprint, request, jsonify, stream_with_context, Response
 
-from src.constants.config import DICT_API_KEY, DICT_ENDPOINT, AUDIO_ENDPOINT
+from src.constants.config import DICT_API_KEY, DICT_ENDPOINT, AUDIO_ENDPOINT, OPENAI_KEY, OPENAI_TTS_MODEL
 from src.db.sentence_dao import SentenceDao
 from src.constants.languages import LANGUAGES_CODES
 from src.utils.auth_utils import api_login_required
 from src.utils.json_utils import Json
 from src.utils.openai_translator_utils import translate
+from src.utils.openai_utils import get_tts
 
 bp = Blueprint('tool', __name__)
 
@@ -78,7 +79,25 @@ def play_word():
 
     # Check if the response is valid and contains MP3 data
     if response.status_code != 200:
-        return "Audio file not found", 404
+        return Json.error("Play word error", response.status_code)
+
+    def generate():
+        for chunk in response.iter_content(chunk_size=1024):
+            if chunk:
+                yield chunk
+
+    # Serve the M4A file directly from memory
+    return Response(stream_with_context(generate()), content_type='audio/mp3')
+
+
+@bp.get('/play/sentence')
+@api_login_required
+def play_sentence():
+    text = request.args.get('text')
+    response = get_tts(text)
+
+    if response.status_code != 200:
+        return Json.error("Play sentence error", response.status_code)
 
     def generate():
         for chunk in response.iter_content(chunk_size=1024):
