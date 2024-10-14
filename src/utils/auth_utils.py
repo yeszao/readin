@@ -6,19 +6,19 @@ from src.utils.date_utils import is_future
 from src.utils.json_utils import Json
 
 
-def is_logged_in():
-    return session["user"] is not None
+def is_logged_in() -> bool:
+    return "user" in session and session["user"] is not None
 
 
-def is_logged_out():
-    return session["user"] is None
+def is_logged_out() -> bool:
+    return not is_logged_in()
 
 
 def api_login_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if is_logged_out():
-            return Json.error("Please login", 401)
+            return Json.error("Please login to use.", 401)
 
         return func(*args, **kwargs)
     return wrapper

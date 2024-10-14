@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify, stream_with_context, Response
 from src.constants.config import DICT_API_KEY, DICT_ENDPOINT, AUDIO_ENDPOINT
 from src.db.sentence_dao import SentenceDao
 from src.constants.languages import LANGUAGES_CODES
+from src.utils.auth_utils import api_login_required
 from src.utils.json_utils import Json
 from src.utils.openai_translator_utils import translate
 
@@ -11,6 +12,7 @@ bp = Blueprint('tool', __name__)
 
 
 @bp.get('/dictionary')
+@api_login_required
 def get_dictionary():
     from_lang = request.args.get('from_lang', 'en')
     to_lang = request.args.get('to_lang')
@@ -39,6 +41,7 @@ def get_dictionary():
 
 
 @bp.post('/translate')
+@api_login_required
 def get_translation():
     text = request.json.get('text')
     to_lang = request.json.get('to_lang')
@@ -62,6 +65,7 @@ def get_translation():
 
 
 @bp.get('/play/word')
+@api_login_required
 def play_word():
     pronunciation_id = request.args.get('id')
 
