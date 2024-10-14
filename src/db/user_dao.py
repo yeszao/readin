@@ -33,3 +33,8 @@ class UserDao:
             session.commit()
 
             return user.as_dict()
+
+    @staticmethod
+    def get_user_by_id(user_id: int) -> User:
+        with DbSession() as session:
+            return session.query(User).filter(User.id == user_id).first()

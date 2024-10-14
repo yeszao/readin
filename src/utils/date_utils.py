@@ -50,3 +50,7 @@ def time_ago(utc_datetime):
         return f"{int(days)} days ago" if days > 1 else "1 day ago"
     else:
         return utc_datetime.strftime("%Y-%m-%d")
+
+
+def is_future(utc_datetime) -> bool:
+    return get_now() < set_utc_tz(utc_datetime)
