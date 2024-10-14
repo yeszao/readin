@@ -60,8 +60,8 @@ def get_translation():
     return jsonify({'translation': translation})
 
 
-@bp.get('/play')
-def get_play():
+@bp.get('/play/word')
+def play_word():
     pronunciation_id = request.args.get('id')
 
     headers = {

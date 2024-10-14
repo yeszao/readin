@@ -87,7 +87,7 @@ async function translateSentence(button, sentenceText, offcanvasContentEl, toLan
 
 function playAudio(pronunciationId) {
     // Assuming there's an API endpoint to fetch and play audio by pronunciation ID
-    const audio = new Audio(`/play?id=${pronunciationId}`);
+    const audio = new Audio(`${PLAY_WORD_URL}?id=${pronunciationId}`);
     audio.play();
 }
 
