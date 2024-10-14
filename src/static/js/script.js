@@ -10,12 +10,12 @@ async function searchDictionary(offcanvasTitleEl, offcanvasContentEl, word, to_l
         const queryString = new URLSearchParams(params).toString();
         const response = await fetch(`${DICTIONARY_URL}?${queryString}`, {"method": "GET"});
 
-        const data = await response.json();
+        const result = await response.json();
         if (!response.ok) {
-            offcanvasContentEl.innerHTML = `<p class="text-muted">${data.error}</p>`;
+            offcanvasContentEl.innerHTML = `<p class="text-muted">${result.message}</p>`;
             return;
         }
-        displayWordDefinition(offcanvasTitleEl, offcanvasContentEl, data);
+        displayWordDefinition(offcanvasTitleEl, offcanvasContentEl, result.data);
     } catch (error) {
         offcanvasContentEl.innerHTML = `<p class="text-muted">Get definition failed, please try again</p>`;
     }
@@ -69,14 +69,14 @@ async function translateSentence(button, sentenceText, offcanvasContentEl, toLan
             })
         });
 
-        const data = await response.json();
+        const result = await response.json();
         if (!response.ok) {
-            offcanvasContentEl.innerHTML = `<p class="text-muted">${data.error}</p>`;
+            offcanvasContentEl.innerHTML = `<p class="text-muted">${result.message}</p>`;
             button.disabled = false;
             return;
         }
 
-        offcanvasContentEl.innerHTML += '<div class="mt-3">' + data.translation + '</div>';
+        offcanvasContentEl.innerHTML += '<div class="mt-3">' + result.data.translation + '</div>';
         button.innerText = 'Translated';
     } catch (error) {
         offcanvasContentEl.innerHTML = '<p class="text-muted">Translate failed, please try again</p>';

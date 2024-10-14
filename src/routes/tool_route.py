@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify, stream_with_context, Response
 from src.constants.config import DICT_API_KEY, DICT_ENDPOINT, AUDIO_ENDPOINT
 from src.db.sentence_dao import SentenceDao
 from src.constants.languages import LANGUAGES_CODES
+from src.utils.json_utils import Json
 from src.utils.openai_translator_utils import translate
 
 bp = Blueprint('tool', __name__)
@@ -32,9 +33,9 @@ def get_dictionary():
     }
     response = requests.get(headers=headers, url=DICT_ENDPOINT, params=params)
     if response.status_code != 200:
-        return jsonify({'error': response.json()['detail']}), response.status_code
+        return Json.error(response.json()['detail'], response.status_code)
 
-    return jsonify(response.json())
+    return Json.ok(response.json())
 
 
 @bp.post('/translate')
@@ -43,21 +44,21 @@ def get_translation():
     to_lang = request.json.get('to_lang')
 
     if text is None:
-        return jsonify({'error': 'Sentence number is required'}), 400
+        return Json.error('Text is required')
 
     if to_lang is None:
-        return jsonify({'error': 'Language is required'}), 400
+        return Json.error('Language is required')
 
     if to_lang not in LANGUAGES_CODES:
-        return jsonify({'error': 'Language is not supported'}), 400
+        return Json.error('Language is not supported')
 
     s = SentenceDao.get_one(text, to_lang)
     if s:
-        return jsonify({'translation': s.translation})
+        return Json.ok({'translation': s.translation})
 
     translation = translate(text, to_lang)
     SentenceDao.add_one(text, to_lang, translation)
-    return jsonify({'translation': translation})
+    return Json.ok({'translation': translation})
 
 
 @bp.get('/play/word')
