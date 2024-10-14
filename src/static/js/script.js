@@ -155,11 +155,12 @@ function batchAction(inputList, action) {
 
 function setCookie(name, value, days) {
     let expires = "";
-    if (days) {
-        const date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toUTCString();
-    }
+    let expiredDays = days || 365;
+
+    const date = new Date();
+    date.setTime(date.getTime() + (expiredDays * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
 }
 
