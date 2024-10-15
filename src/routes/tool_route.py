@@ -1,8 +1,8 @@
 import requests
 from flask import Blueprint, request, jsonify, stream_with_context, Response
 
-from src.constants.config import DICT_API_KEY, DICT_ENDPOINT, AUDIO_ENDPOINT, OPENAI_KEY, OPENAI_TTS_MODEL
-from src.db.sentence_dao import SentenceDao
+from src.constants.config import DICT_API_KEY, DICT_ENDPOINT, AUDIO_ENDPOINT
+from src.dao.sentence_dao import SentenceDao
 from src.constants.languages import LANGUAGES_CODES
 from src.utils.auth_utils import api_login_required
 from src.utils.json_utils import Json

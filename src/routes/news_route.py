@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request
 
-from src.db.news_dao import NewsDao
+from src.dao.news_dao import NewsDao
 
 bp = Blueprint('news', __name__)
 

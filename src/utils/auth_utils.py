@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import session
 
-from src.db.user_dao import UserDao
+from src.dao.user_dao import UserDao
 from src.utils.date_utils import is_future
 from src.utils.json_utils import Json
 

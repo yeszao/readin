@@ -6,7 +6,7 @@ from flask import current_app
 from authlib.integrations.flask_client import OAuth
 
 from src.constants.config import GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET
-from src.db.user_dao import UserDao
+from src.dao.user_dao import UserDao
 
 bp = Blueprint('auth', __name__, url_prefix="/auth")
 
