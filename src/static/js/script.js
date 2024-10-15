@@ -91,9 +91,9 @@ function playAudio(pronunciationId) {
     audio.play();
 }
 
-function playSentence(text) {
+function playSentence(text, voice) {
     // Assuming there's an API endpoint to fetch and play audio by pronunciation ID
-    const audio = new Audio(`${PLAY_SENTENCE_URL}?text=${text}`);
+    const audio = new Audio(`${PLAY_SENTENCE_URL}?text=${text}&voice=${voice}`);
     audio.play();
 }
 
@@ -122,8 +122,11 @@ const initSentenceTranslation = function () {
             const translateBtn = createBtn('Translate');
             titleDiv.appendChild(translateBtn);
 
-            const playBtn = createBtn('Play ၊၊|၊');
-            titleDiv.appendChild(playBtn);
+            const playMaleVoiceBtn = createBtn('Echo ၊၊|၊');
+            titleDiv.appendChild(playMaleVoiceBtn);
+
+            const playFemaleVoiceBtn = createBtn('Shimmer ၊၊|၊');
+            titleDiv.appendChild(playFemaleVoiceBtn);
 
             offcanvasTitleEl.appendChild(titleDiv);
 
@@ -140,8 +143,12 @@ const initSentenceTranslation = function () {
                 await translateSentence(translateBtn, sentenceText, offcanvasContentEl, toLang);
             });
 
-            playBtn.addEventListener('click', function () {
-                playSentence(sentenceText);
+            playMaleVoiceBtn.addEventListener('click', function () {
+                playSentence(sentenceText, 'echo');
+            });
+
+            playFemaleVoiceBtn.addEventListener('click', function () {
+                playSentence(sentenceText, 'shimmer');
             });
         });
     });

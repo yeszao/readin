@@ -17,11 +17,14 @@ def get_completions(completion_params: dict) -> dict:
     return response.json()["choices"][0]
 
 
-def get_tts(text: str):
+def get_tts(text: str, voice: str):
+    """
+    https://platform.openai.com/docs/guides/text-to-speech/quickstart
+    """
     params = {
         "input": text,
         "model": OPENAI_TTS_MODEL,
-        "voice": "echo",
+        "voice": voice,
         "response_format": "mp3"
     }
 

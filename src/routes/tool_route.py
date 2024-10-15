@@ -94,7 +94,8 @@ def play_word():
 @api_login_required
 def play_sentence():
     text = request.args.get('text')
-    response = get_tts(text)
+    voice = request.args.get('voice')
+    response = get_tts(text, voice)
 
     if response.status_code != 200:
         return Json.error("Play sentence error", response.status_code)
