@@ -1,104 +1,64 @@
-import json
-import shutil
+import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from pydantic import BaseModel
-
-from src.constants.config import BOOKS_GENERATED_DIR, BOOKS_DIR
-from src.utils.book_utils import get_book_objects, Book, get_chapters
+from src.constants.config import BOOKS_DIR, LOG_DIR
+from src.constants.enums import SentenceSource
+from src.dao.book_dao import BookDao
+from src.dao.chapter_dao import ChapterDao
+from src.dao.sentence_vocabulary_dao import SentenceVocabularyDao
+from src.db.entity import Book, Chapter
 from src.utils.chapter_utils import tagged_html
+from src.utils.logging_utils import init_logging
 
 
-class Summary(BaseModel):
-    word_count: int
-    vocabulary_total: int
-    word_count_distribution: dict
-    vocabulary_distribution: dict
-
-
-class BookSummary(BaseModel):
-    word_count: int
-    sentence_total: int
-    sentence_distribution: dict
-    vocabulary_total: int
-    vocabulary_distribution: dict
-
-
-def prepare_root_dir():
-    shutil.rmtree(BOOKS_GENERATED_DIR, ignore_errors=True)
-    BOOKS_GENERATED_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def parse_chapter(chapter, original_content):
+def parse_chapter(chapter_no: int, original_content: str):
     tagged_content, sentences, chapter_vocabulary, chapter_word_count = tagged_html(original_content)
-    print(f"chapter #{chapter.no} parsed.")
+    print(f"chapter #{chapter_no} parsed.")
 
-    return chapter, tagged_content, sentences, chapter_vocabulary, chapter_word_count
-
-
-def sort_dict_by_key(d: dict) -> dict:
-    return dict(sorted(d.items(), key=lambda item: item[0]))
+    return chapter_no, tagged_content, sentences, chapter_vocabulary, chapter_word_count
 
 
-def generate(book: Book) -> (set, int):
-    print(f"[[{book.name}]] started.")
-    generated_book_dir = BOOKS_GENERATED_DIR.joinpath(book.slug)
-    generated_book_dir.mkdir(parents=True, exist_ok=True)
-
-    summary_file = generated_book_dir.joinpath("summary.json")
-    vocabulary_file = generated_book_dir.joinpath("vocabulary.txt")
-    summary = BookSummary(word_count=0, sentence_total=0, sentence_distribution={}, vocabulary_total=0,
-                          vocabulary_distribution={})
+def build_book(book: Book):
+    logging.info(f"[[{book.name}]] started.")
 
     book_vocabulary = set()
     book_word_count = 0
-    futures=[]
+    book_sentence_total = 0
+    futures = []
     with ThreadPoolExecutor() as executor:
-        for chapter in get_chapters(book):
-            original_content = BOOKS_DIR.joinpath(book.slug).joinpath(chapter.html_file).read_text()
-            futures.append(executor.submit(parse_chapter, chapter, original_content))
+        for file in BOOKS_DIR.joinpath(book.slug).glob('*.html'):
+            chapter_no = int(file.stem)
+            original_content = file.read_text()
+            futures.append(executor.submit(parse_chapter, chapter_no, original_content))
 
     for future in as_completed(futures):
-        chapter, tagged_content, sentences, chapter_vocabulary, chapter_word_count = future.result()
+        chapter_no, tagged_content, sentences, chapter_vocabulary, chapter_word_count = future.result()
 
-        tagged_html_file = generated_book_dir.joinpath(chapter.html_file)
-        tagged_html_file.write_text(tagged_content)
+        chapter = Chapter()
+        chapter.no = chapter_no
+        chapter.book_id = book.id
 
-        chapter_vocabulary_file = generated_book_dir.joinpath(chapter.vocabulary_file)
-        chapter_vocabulary_file.write_text('\n'.join(sorted(list(chapter_vocabulary))))
+        chapter.tagged_content_html = tagged_content
+        chapter.sentence_count = len(sentences)
+        chapter.word_count = chapter_word_count
+        chapter.vocabulary_count = len(chapter_vocabulary)
+        chapter_id = ChapterDao.merge(chapter)
 
-        summary.sentence_total += len(sentences)
-        summary.sentence_distribution[chapter.no] = len(sentences)
-        summary.vocabulary_distribution[chapter.no] = len(chapter_vocabulary)
+        # todo: don't update sentences if the count of sentence in a chapter is the same
+        SentenceVocabularyDao.batch_add(SentenceSource.CHAPTER.value, chapter_id, sentences)
+
+        book_sentence_total += len(sentences)
         book_vocabulary.update(chapter_vocabulary)
         book_word_count += chapter_word_count
+        logging.info(f"chapter #{chapter_no} saved.")
 
-    summary.word_count = book_word_count
-    summary.vocabulary_total = len(book_vocabulary)
-    summary.sentence_distribution = sort_dict_by_key(summary.sentence_distribution)
-    summary.vocabulary_distribution = sort_dict_by_key(summary.vocabulary_distribution)
-    summary_file.write_text(json.dumps(summary.model_dump(), ensure_ascii=False, indent=2))
-    vocabulary_file.write_text('\n'.join(sorted(list(book_vocabulary))))
-
-    print(f"[[{book.name}]] generated.")
-    return book_vocabulary, book_word_count
+    BookDao.update_counts(book.id, book_sentence_total, book_word_count, len(book_vocabulary))
+    logging.info(f"[[{book.name}]] generated.")
 
 
 if __name__ == '__main__':
-    prepare_root_dir()
-    books = get_book_objects()
+    init_logging(LOG_DIR.joinpath("build.log"))
+    for b in BookDao.get_all():
+        build_book(b)
 
-    summary = Summary(word_count=0, vocabulary_total=0, word_count_distribution={}, vocabulary_distribution={})
-
-    vocabulary = set()
-    for b in books:
-        book_vocabulary, book_word_count = generate(b)
-        summary.word_count += book_word_count
-        summary.word_count_distribution[b.slug] = book_word_count
-        summary.vocabulary_distribution[b.slug] = len(book_vocabulary)
-        vocabulary.update(book_vocabulary)
-
-    summary.vocabulary_total = len(vocabulary)
-    summary_file = BOOKS_GENERATED_DIR.joinpath("summary.json")
-    summary_file.write_text(json.dumps(summary.model_dump(), ensure_ascii=False, indent=2))
-    print("All done!")
+    logging.info("All done!")

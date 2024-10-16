@@ -19,7 +19,11 @@ def test_tagged_html():
 @pytest.mark.parametrize("html, expected", [
     ("", ("", [], set(), 0)),
     ("<p></p>", ('<p></p>', [], set(), 0)),
-    ("<p>Hello World</p>", ('<p><b><s id="1">1</s><i>Hello</i> <i>World</i></b> </p>', ["Hello World"], {"hello", "world"}, 2)),
+    ("<p>Hello World</p>",
+     ('<p><span><s>1</s><b><i>Hello</i> <i>World</i></b></span> </p>',
+      [(1, "Hello World", {"hello", "world"})],
+      {"hello", "world"},
+      2)),
 ])
 def test_tagged_html2(html, expected):
     assert tagged_html(html) == expected

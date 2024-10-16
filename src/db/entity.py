@@ -1,20 +1,36 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Text, UniqueConstraint, LargeBinary, ForeignKey
+from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
 from src.db.engine import Base, DbEngine
+
+
+class Book(Base):
+    __tablename__ = 'books'
+
+    id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime, nullable=False, index=True, default=datetime.now)
+    updated_at = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    name = Column(String(50), nullable=False, default='')
+    slug = Column(String(50), nullable=False, unique=True)
+    author = Column(String(100), nullable=False)
+    chapter_number = Column(Integer, nullable=False)
+    cover = Column(String(200), nullable=False, default='')
+    description = Column(String(300), nullable=False, default='')
+
+    sentence_count = Column(Integer, nullable=False, default=0)
+    word_count = Column(Integer, nullable=False, default=0)
+    vocabulary_count = Column(Integer, nullable=False, default=0)
 
 
 class PostBase(Base):
     __abstract__ = True
 
-    title = Column(String(250), nullable=False, default='')
-    tagged_title = Column(String(300), nullable=False, default='')
-    content_html = Column(Text, nullable=False, default='')
-    tagged_content_html = Column(Text, nullable=False, default='')
+    tagged_content_html = Column(MEDIUMTEXT, nullable=False, default='')
     sentence_count = Column(Integer, nullable=False, default=0)
     word_count = Column(Integer, nullable=False, default=0)
     vocabulary_count = Column(Integer, nullable=False, default=0)
-    vocabulary = Column(Text, nullable=False, default='')
 
 
 class News(PostBase):
@@ -24,6 +40,9 @@ class News(PostBase):
     created_at = Column(DateTime, nullable=False, index=True, default=datetime.now)
     updated_at = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
+    title = Column(String(250), nullable=False, default='')
+    tagged_title = Column(String(300), nullable=False, default='')
+    content_html = Column(Text, nullable=False, default='')
     url = Column(String(300), nullable=False, unique=True, default='')
     publication = Column(String(10), nullable=False)
     date = Column(DateTime, nullable=False, index=True)
@@ -37,10 +56,10 @@ class Chapter(PostBase):
     updated_at = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
     book_id = Column(Integer, nullable=False)
-    chapter_no = Column(Integer, nullable=False)
+    no = Column(Integer, nullable=False)
 
     __table_args__ = (
-        UniqueConstraint('book_id', 'chapter_no'),
+        UniqueConstraint('book_id', 'no'),
     )
 
 
@@ -53,13 +72,24 @@ class Sentence(Base):
 
     source_type = Column(Integer, nullable=False)    # 1: News, 2: Chapter
     source_id = Column(Integer, nullable=False)
-    text = Column(String(500), nullable=False)
-    male_voice = Column(LargeBinary)
-    female_voice = Column(LargeBinary)
+    sentence_no = Column(Integer, nullable=False)
+    text = Column(String(2000), nullable=False)
 
     __table_args__ = (
-        UniqueConstraint('source_id', 'source_type'),
+        UniqueConstraint('source_id', "sentence_no",  'source_type'),
     )
+
+
+class SentenceAudio(Base):
+    __tablename__ = 'sentence_audios'
+
+    id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime, nullable=False, index=True, default=datetime.now)
+    updated_at = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
+
+    sentence_id = Column(Integer, ForeignKey('sentences.id'))
+    voice = Column(String(10), nullable=False)
+    audio = Column(LargeBinary, nullable=False)
 
 
 class SentenceTranslation(Base):

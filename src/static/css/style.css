@@ -83,3 +83,17 @@ blockquote p {
     width: var(--book-cover-width);
     height: calc(var(--book-cover-width) * 1.5);
 }
+
+
+article table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+article table, article  th, article  td {
+    border: 1px solid #6c757d;
+}
+
+article th, article td {
+    padding: 0.3rem .5rem;
+}

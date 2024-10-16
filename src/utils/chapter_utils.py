@@ -1,9 +1,10 @@
-from typing import List, Set
+from typing import List, Set, Tuple, Dict
 import spacy
 from bs4 import BeautifulSoup
 from spacy.language import Language
 
 nlp: Language = spacy.load("en_core_web_sm")
+ALLOWED_TAGS = {'h1', 'h2', 'p', 'ul', 'li', 'ol', 'blockquote', 'i', 'em', 'br', 'b', 'hr'}
 
 
 def _get_sentences(text: str) -> List[str]:
@@ -15,7 +16,17 @@ def _get_words(text: str):
     return nlp(text)
 
 
-def tagged_html(input_html: str) -> (str, str, List[str], Set[str], int):
+def check_tags(input_html):
+    soup = BeautifulSoup(input_html, 'html.parser')
+    unexpected_tags = set()
+    for tag in soup.find_all(True):  # True finds all tags
+        if tag.name not in ALLOWED_TAGS:
+            unexpected_tags.add(tag.name)
+
+    return unexpected_tags
+
+
+def tagged_html(input_html: str) -> (str, List[Tuple[int, str, list]], Set[str], int):
     soup = BeautifulSoup(input_html, 'html.parser')
 
     all_sentences = []
@@ -36,14 +47,13 @@ def tagged_html(input_html: str) -> (str, str, List[str], Set[str], int):
     return content, all_sentences, all_vocabulary, all_word_count
 
 
-def _process_tag(tag, sentence_no, all_vocabulary) -> (int, List[str], int):
-    raw_sentences = []
+def _process_tag(tag, sentence_no, all_vocabulary) -> (int, List[Tuple[int, str, list]], int):
+    tag_sentences = []  # [(sentence_no, sentence, vocabulary), (...), ...]
     plain_text = tag.get_text().strip()
     if plain_text.strip() == '':
-        return sentence_no, raw_sentences, 0
+        return sentence_no, tag_sentences, 0
 
     sentences = _get_sentences(plain_text)
-    raw_sentences.extend(sentences)
     tagged_sentences = []
     sentence_word_count = 0
 
@@ -51,13 +61,14 @@ def _process_tag(tag, sentence_no, all_vocabulary) -> (int, List[str], int):
         sentence_no += 1
         wrapped, vocabulary, word_count = wrap_words(s)
         all_vocabulary.update(vocabulary)
+        tag_sentences.append((sentence_no, s, vocabulary))
         sentence_word_count += word_count
         tagged_sentences.append(f'<span><s>{sentence_no}</s><b>{wrapped}</b></span> ')
 
     tag.clear()
     tag.append(BeautifulSoup(' '.join(tagged_sentences), 'html.parser'))
 
-    return sentence_no, raw_sentences, sentence_word_count
+    return sentence_no, tag_sentences, sentence_word_count
 
 
 def wrap_words(text, start_tag='<i>', end_tag='</i>') -> (str, int, int):
