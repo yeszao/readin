@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Text, UniqueConstraint, LargeBinary, ForeignKey, text
-from sqlalchemy.dialects.mysql import MEDIUMTEXT
+from sqlalchemy.dialects.mysql import MEDIUMTEXT, MEDIUMBLOB
 
 from src.db.engine import Base, DbEngine
 
@@ -89,7 +89,7 @@ class SentenceAudio(Base):
 
     sentence_id = Column(Integer, ForeignKey('sentences.id'), nullable=False)
     voice = Column(String(10), nullable=False)
-    audio = Column(LargeBinary, nullable=False)
+    audio = Column(MEDIUMBLOB, nullable=False)
 
     __table_args__ = (
         UniqueConstraint('sentence_id', 'voice', name='udx_sentenceId_voice'),

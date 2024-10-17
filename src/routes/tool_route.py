@@ -138,12 +138,12 @@ def play_sentence():
                 audio_buffer.write(chunk)
                 yield chunk
 
-    return Response(stream_with_context(generate()), content_type='audio/mp3')
+    streaming_response = Response(stream_with_context(generate()), content_type='audio/mp3')
 
-    # @streaming_response.call_on_close
-    # def on_close():
-    #     audio_data = audio_buffer.getvalue()
-    #     SentenceAudioDao.add_one(s.id, voice, audio_data)
-    #
-    # return streaming_response
+    @streaming_response.call_on_close
+    def on_close():
+        audio_data = audio_buffer.getvalue()
+        SentenceAudioDao.add_one(s.id, voice, audio_data)
+
+    return streaming_response
 
