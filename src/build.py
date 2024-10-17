@@ -22,6 +22,13 @@ def parse_chapter(chapter_no: int, original_content: str) -> tuple[int, ParsedHt
     return chapter_no, parsed
 
 
+def update_chapter_content(chapter, parsed):
+    chapter.tagged_content_html = parsed.tagged_content_html
+    chapter.sentence_count = parsed.sentence_count
+    chapter.word_count = parsed.word_count
+    chapter.vocabulary_count = parsed.vocabulary_count
+
+
 def build_book(book: Book):
     logging.info(f"[[{book.name}]] started.")
 
@@ -44,19 +51,15 @@ def build_book(book: Book):
             continue
         elif old_chapter and old_chapter.sentence_count != parsed.sentence_count:
             chapter_id = old_chapter.id
-            SentenceVocabularyDao.remove_all(chapter_id)
-            SentenceAudioDao.remove_all(chapter_id)
-            SentenceTranslationDao.remove_all(chapter_id)
+            update_chapter_content(old_chapter, parsed)
+            ChapterDao.update_one(old_chapter)
             SentenceDao.remove_all(SentenceSource.CHAPTER.value, chapter_id)
         else:
             chapter = Chapter()
             chapter.no = chapter_no
             chapter.book_id = book.id
 
-            chapter.tagged_content_html = parsed.tagged_content_html
-            chapter.sentence_count = parsed.sentence_count
-            chapter.word_count = parsed.word_count
-            chapter.vocabulary_count = parsed.vocabulary_count
+            update_chapter_content(chapter, parsed)
             chapter_id = ChapterDao.add_one(chapter)
 
         SentenceVocabularyDao.batch_add(SentenceSource.CHAPTER.value, chapter_id, parsed.sentences)

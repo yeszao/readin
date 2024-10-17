@@ -64,10 +64,4 @@ class SentenceVocabularyDao:
                 SentenceVocabularyDao._create_sentence_vocab_associations(session, sentence_entries, sentences, vocab_map)
             session.commit()
 
-    @staticmethod
-    def remove_all(sentence_id: int):
-        with DbSession() as session:
-            session.query(SentenceVocabulary).filter(
-                SentenceVocabulary.sentence_id == sentence_id
-            ).delete()
 

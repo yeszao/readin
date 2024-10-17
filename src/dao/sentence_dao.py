@@ -1,5 +1,5 @@
 from src.db.engine import DbSession
-from src.db.entity import Sentence
+from src.db.entity import Sentence, SentenceVocabulary, SentenceTranslation, SentenceAudio
 from src.utils.hash_utils import int_hash
 
 
@@ -30,8 +30,14 @@ class SentenceDao:
     @staticmethod
     def remove_all(source_type: int, source_id: int):
         with DbSession() as session:
-            session.query(Sentence).filter(
+            sentences = session.query(Sentence).filter(
                 Sentence.source_type == source_type,
                 Sentence.source_id == source_id
-            ).delete()
+            ).all()
+
+            ids = [s.id for s in sentences]
+            session.query(SentenceVocabulary).filter(SentenceVocabulary.sentence_id.in_(ids)).delete()
+            session.query(SentenceAudio).filter(SentenceAudio.sentence_id.in_(ids)).delete()
+            session.query(SentenceTranslation).filter(SentenceTranslation.sentence_id.in_(ids)).delete()
+            session.query(Sentence).filter(Sentence.id.in_(ids)).delete()
             session.commit()
