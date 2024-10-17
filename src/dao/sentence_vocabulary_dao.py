@@ -2,15 +2,16 @@ from typing import Tuple, List
 
 from src.db.engine import DbSession
 from src.db.entity import Sentence, Vocabulary, SentenceVocabulary
+from src.dto.html_dto import SentenceWords
 
 
 class SentenceVocabularyDao:
     @staticmethod
-    def batch_add(source_type: int, source_id: int, sentence_vocabulary: List[Tuple[int, str, set]]):
+    def batch_add(source_type: int, source_id: int, sentences: List[SentenceWords]):
         with DbSession() as session:
-            for s in sentence_vocabulary:
-                for w in s[2]:
-                    SentenceVocabularyDao.add_or_update(session, source_type, source_id, s[0], s[1], w)
+            for s in sentences:
+                for w in s.words:
+                    SentenceVocabularyDao.add_or_update(session, source_type, source_id, s.no, s.text, w)
             session.commit()
 
     @staticmethod

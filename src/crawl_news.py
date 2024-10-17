@@ -3,7 +3,7 @@ import logging
 
 from src.constants.config import CACHE_DIR, LOG_DIR
 from src.db.entity import News
-from src.utils.chapter_utils import tagged_html
+from src.utils.html_utils import tagged_html
 from src.utils.date_utils import get_now_filename, str_to_datetime
 from src.utils.google_news_utils import parse_cnn, parse_bbc, get_google_news, check_url, get_html
 from src.dao.news_dao import NewsDao

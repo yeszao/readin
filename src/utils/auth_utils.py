@@ -3,7 +3,7 @@ from flask import session
 
 from src.dao.user_dao import UserDao
 from src.utils.date_utils import is_future
-from src.utils.json_utils import Json
+from src.dto.json_dto import Json
 
 
 def is_logged_in() -> bool:

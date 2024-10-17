@@ -5,7 +5,7 @@ from src.constants.config import DICT_API_KEY, DICT_ENDPOINT, AUDIO_ENDPOINT
 from src.dao.sentence_dao import SentenceDao
 from src.constants.languages import LANGUAGES_CODES
 from src.utils.auth_utils import api_login_required
-from src.utils.json_utils import Json
+from src.dto.json_dto import Json
 from src.utils.openai_translator_utils import translate
 from src.utils.openai_utils import get_tts
 

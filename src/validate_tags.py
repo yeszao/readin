@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from src.constants.config import BOOKS_DIR, LOG_DIR
 from src.dao.book_dao import BookDao
 from src.db.entity import Book
-from src.utils.chapter_utils import check_tags
+from src.utils.html_utils import check_tags
 from src.utils.logging_utils import init_logging
 
 

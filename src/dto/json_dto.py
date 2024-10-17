@@ -1,5 +1,4 @@
 from typing import Any
-
 from flask import jsonify
 from pydantic import BaseModel
 
