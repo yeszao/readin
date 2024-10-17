@@ -2,8 +2,10 @@ import json
 import logging
 
 from src.constants.config import CACHE_DIR, LOG_DIR
+from src.constants.enums import SentenceSource
+from src.dao.sentence_vocabulary_dao import SentenceVocabularyDao
 from src.db.entity import News
-from src.utils.html_utils import tagged_html
+from src.utils.html_utils import tagged_html, wrap_title
 from src.utils.date_utils import get_now_filename, str_to_datetime
 from src.utils.google_news_utils import parse_cnn, parse_bbc, get_google_news, check_url, get_html
 from src.dao.news_dao import NewsDao
@@ -47,23 +49,24 @@ if __name__ == '__main__':
             logging.error(f"Failed to get html content from {url}")
             continue
 
-        tagged_content, sentences, vocabulary, word_count = tagged_html(content_html)
+        parsed = tagged_html(content_html)
 
         title = result['highlight']['title']
-        tagged_title, _, _, _ = tagged_html("<h1>" + title + "</h1>")
+        parsed_title = tagged_html("<h1>" + title + "</h1>")
 
         news = News(
             url=url,
             publication=publications[source_name]['name'],
             title=title,
-            tagged_title=tagged_title,
+            tagged_title=wrap_title(title),
             content_html=content_html,
-            tagged_content_html=tagged_content,
-            vocabulary_count=len(vocabulary),
-            word_count=word_count,
-            vocabulary='\n'.join(sorted(list(vocabulary))),
+            tagged_content_html=parsed.tagged_content_html,
+            sentence_count=parsed.sentence_count,
+            vocabulary_count=parsed.vocabulary_count,
+            word_count=parsed.word_count,
             date=str_to_datetime(result['highlight']['date'])
         )
 
-        NewsDao.add_one(news)
+        news_id = NewsDao.add_one(news)
+        SentenceVocabularyDao.batch_add(SentenceSource.NEWS.value, news_id, parsed.sentences)
         logging.info(f"Saved [{publications[source_name]['name']}] {url}")

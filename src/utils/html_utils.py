@@ -59,6 +59,11 @@ def _process_tag(tag, sentence_no, parsed) -> int:
     return sentence_no
 
 
+def wrap_title(title: str) -> str:
+    wrapped, _, _ = wrap_words(title)
+    return f'<span><s>0</s><b>{wrapped}</b></span>'
+
+
 def wrap_words(text, start_tag='<i>', end_tag='</i>') -> (str, int, int):
     doc = nlp_get_words(text)
     wrapped = ''

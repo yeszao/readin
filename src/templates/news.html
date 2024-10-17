@@ -11,7 +11,7 @@
 <main>
     <article class="container box mt-5 mb-4 article-content" id="article-content">
 
-        {{ news.tagged_title|safe }}
+        <h1>{{ news.tagged_title|safe }}</h1>
 
         <p class="text-muted small my-4 text-center">
             Vocabulary: {{ news.vocabulary_count }}, Words: {{ news.word_count }}

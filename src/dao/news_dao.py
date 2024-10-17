@@ -6,10 +6,11 @@ from src.db.entity import News
 
 class NewsDao:
     @staticmethod
-    def add_one(news: News):
+    def add_one(news: News) -> int:
         with DbSession() as session:
             session.add(news)
             session.commit()
+            return news.id
 
     @staticmethod
     def get_latest(size: int = 2) -> List[News]:
