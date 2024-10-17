@@ -1,9 +1,13 @@
+from io import BytesIO
+
 import requests
 from flask import Blueprint, request, jsonify, stream_with_context, Response
 
 from src.constants.config import DICT_API_KEY, DICT_ENDPOINT, AUDIO_ENDPOINT
+from src.dao.sentence_audio_dao import SentenceAudioDao
 from src.dao.sentence_dao import SentenceDao
 from src.constants.languages import LANGUAGES_CODES
+from src.dao.sentence_translation_dao import SentenceTranslationDao
 from src.utils.auth_utils import api_login_required
 from src.dto.json_dto import Json
 from src.utils.openai_translator_utils import translate
@@ -41,27 +45,39 @@ def get_dictionary():
     return Json.ok(response.json())
 
 
-@bp.post('/translate')
+@bp.get('/translate')
 @api_login_required
 def get_translation():
-    text = request.json.get('text')
-    to_lang = request.json.get('to_lang')
+    source_type = request.args.get('source_type', 0, int)
+    source_id = request.args.get('source_id', 0, int)
+    sentence_no = request.args.get('sentence_no', 0, int)
+    to_lang = request.args.get('to_lang', '')
 
-    if text is None:
-        return Json.error('Text is required')
+    if source_type not in (1, 2):
+        return Json.error('Source type error!')
 
-    if to_lang is None:
+    if not source_id:
+        return Json.error('Source id error!')
+
+    if not sentence_no:
+        return Json.error('Sentence no error!')
+
+    if not to_lang:
         return Json.error('Language is required')
 
     if to_lang not in LANGUAGES_CODES:
         return Json.error('Language is not supported')
 
-    s = SentenceDao.get_one(text, to_lang)
-    if s:
-        return Json.ok({'translation': s.translation})
+    s = SentenceDao.get_one(source_type, source_id, sentence_no)
+    if not s:
+        return Json.error('Sentence not found', 404)
 
-    translation = translate(text, to_lang)
-    SentenceDao.add_one(text, to_lang, translation)
+    translation = SentenceTranslationDao.get_one(s.id, to_lang)
+    if translation:
+        return Json.ok({'translation': translation.translation})
+
+    translation = translate(s.text, to_lang)
+    SentenceTranslationDao.add_one(s.id, to_lang, translation)
     return Json.ok({'translation': translation})
 
 
@@ -93,18 +109,41 @@ def play_word():
 @bp.get('/play/sentence')
 @api_login_required
 def play_sentence():
-    text = request.args.get('text')
+    source_type = request.args.get('source_type', 0, int)
+    source_id = request.args.get('source_id', 0, int)
+    sentence_no = request.args.get('sentence_no', 0, int)
     voice = request.args.get('voice')
-    response = get_tts(text, voice)
+
+    s = SentenceDao.get_one(source_type, source_id, sentence_no)
+    if not s:
+        return Json.error('Sentence not found', 404)
+
+    audio = SentenceAudioDao.get_one(s.id, voice)
+    if audio:
+        def generate_from_db():
+            yield from BytesIO(audio.audio)
+
+        return Response(stream_with_context(generate_from_db()), content_type='audio/mp3')
+
+    response = get_tts(s.text, voice)
 
     if response.status_code != 200:
         return Json.error("Play sentence error", response.status_code)
 
+    audio_buffer = BytesIO()
+
     def generate():
         for chunk in response.iter_content(chunk_size=1024):
             if chunk:
+                audio_buffer.write(chunk)
                 yield chunk
 
-    # Serve the M4A file directly from memory
     return Response(stream_with_context(generate()), content_type='audio/mp3')
+
+    # @streaming_response.call_on_close
+    # def on_close():
+    #     audio_data = audio_buffer.getvalue()
+    #     SentenceAudioDao.add_one(s.id, voice, audio_data)
+    #
+    # return streaming_response
 

@@ -61,7 +61,7 @@ def _process_tag(tag, sentence_no, parsed) -> int:
 
 def wrap_title(title: str) -> str:
     wrapped, _, _ = wrap_words(title)
-    return f'<span><s>0</s><b>{wrapped}</b></span>'
+    return f'<span><b>{wrapped}</b></span>'
 
 
 def wrap_words(text, start_tag='<i>', end_tag='</i>') -> (str, int, int):

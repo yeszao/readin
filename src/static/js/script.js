@@ -1,15 +1,8 @@
 async function searchDictionary(offcanvasTitleEl, offcanvasContentEl, word, to_lang) {
     offcanvasTitleEl.innerHTML = word;
 
-    const params = {
-        text: word,
-        to_lang: to_lang
-    }
-
     try {
-        const queryString = new URLSearchParams(params).toString();
-        const response = await fetch(`${DICTIONARY_URL}?${queryString}`, {"method": "GET"});
-
+        const response = await httpGet(DICTIONARY_URL, {text: word, to_lang: to_lang});
         const result = await response.json();
         if (!response.ok) {
             offcanvasContentEl.innerHTML = `<p class="text-muted">${result.message}</p>`;
@@ -30,7 +23,7 @@ function displayWordDefinition(offcanvasTitleEl, contentDiv, data) {
             const button = document.createElement('button');
             button.classList.add('btn', 'btn-outline-secondary', 'me-2', 'btn-sm', 'mb-2');
             button.innerHTML = `${pronunciation.accent} ${pronunciation.pronunciation} ၊၊||၊`;
-            button.onclick = () => playAudio(pronunciation.id);
+            button.onclick = () => speechWord(pronunciation.id);
             pronunciationSection.appendChild(button);
         }
     });
@@ -53,22 +46,25 @@ function displayWordDefinition(offcanvasTitleEl, contentDiv, data) {
     });
 }
 
-async function translateSentence(button, sentenceText, offcanvasContentEl, toLang) {
+
+function getQueryString(params) {
+    return new URLSearchParams(params).toString();
+}
+
+async function httpGet(baseUrl, params) {
+    return await fetch(`${baseUrl}?${getQueryString(params)}`, {"method": "GET"});
+}
+
+async function translateSentence(button, sourceType, sourceId, sentenceNo, offcanvasContentEl, toLang) {
     button.innerText = 'Translating...';
     button.disabled = true;
     try {
-        // Assuming you have an API endpoint that provides the translation
-        const response = await fetch(TRANSLATION_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: sentenceText,
-                to_lang: toLang,
-            })
-        });
-
+        const response = await httpGet(TRANSLATION_URL, {
+            source_type: sourceType,
+            source_id: sourceId,
+            sentence_no: sentenceNo,
+            to_lang: toLang,
+        })
         const result = await response.json();
         if (!response.ok) {
             offcanvasContentEl.innerHTML = `<p class="text-muted">${result.message}</p>`;
@@ -85,15 +81,21 @@ async function translateSentence(button, sentenceText, offcanvasContentEl, toLan
 }
 
 
-function playAudio(pronunciationId) {
-    // Assuming there's an API endpoint to fetch and play audio by pronunciation ID
-    const audio = new Audio(`${PLAY_WORD_URL}?id=${pronunciationId}`);
+function speechWord(pronunciationId) {
+    const params = {id: pronunciationId};
+    const audio = new Audio(`${PLAY_WORD_URL}?${getQueryString(params)}`);
     audio.play();
 }
 
-function playSentence(text, voice) {
-    // Assuming there's an API endpoint to fetch and play audio by pronunciation ID
-    const audio = new Audio(`${PLAY_SENTENCE_URL}?text=${text}&voice=${voice}`);
+function speechSentence(sourceType, sourceId, sentenceNo, voice) {
+    const params = {
+        source_type: sourceType,
+        source_id: sourceId,
+        sentence_no: sentenceNo,
+        voice: voice
+    };
+    const audio_url = `${PLAY_SENTENCE_URL}?${getQueryString(params)}`;
+    const audio = new Audio(audio_url);
     audio.play();
 }
 
@@ -104,14 +106,14 @@ const createBtn = function(text) {
     return btn;
 }
 
-const initSentenceTranslation = function () {
+const initSentenceTranslation = function (sourceType, sourceId) {
     const sentence_btn_els = ARTICLE_CONTENT_EL.getElementsByTagName("s");
 
     Array.from(sentence_btn_els).forEach(function (s) {
         s.addEventListener('click', function (event) {
             s.classList.add('clicked');
             var sentenceSpanEl = event.currentTarget.parentElement;
-            var sentenceText = sentenceSpanEl.querySelector('b').innerText;
+            var sentenceNo = event.currentTarget.innerText;
 
             offcanvasTitleEl.innerHTML = '';
             offcanvasContentEl.innerHTML = '';
@@ -140,15 +142,15 @@ const initSentenceTranslation = function () {
             }
 
             translateBtn.addEventListener('click', async function () {
-                await translateSentence(translateBtn, sentenceText, offcanvasContentEl, toLang);
+                await translateSentence(translateBtn, sourceType, sourceId, sentenceNo, offcanvasContentEl, toLang);
             });
 
             playMaleVoiceBtn.addEventListener('click', function () {
-                playSentence(sentenceText, 'echo');
+                speechSentence(sourceType, sourceId, sentenceNo, 'echo');
             });
 
             playFemaleVoiceBtn.addEventListener('click', function () {
-                playSentence(sentenceText, 'shimmer');
+                speechSentence(sourceType, sourceId, sentenceNo, 'shimmer');
             });
         });
     });

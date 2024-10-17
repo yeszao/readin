@@ -15,7 +15,8 @@
         </a>
     </section>
 
-    <article class="container box mt-2 mb-4 article-content" id="article-content">
+    <article class="container box mt-2 mb-4 article-content" id="article-content"
+             data-source-id="{{ chapter.id }}" data-source-type="1">
         {{ content|safe }}
     </article>
 
@@ -40,8 +41,12 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
+        const articleEl = document.getElementById('article-content');
+        const sourceType = articleEl.dataset.sourceType;
+        const sourceId = articleEl.dataset.sourceId;
+
         initWordTranslation();
-        initSentenceTranslation();
+        initSentenceTranslation(sourceType, sourceId);
     });
 </script>
 </body>
