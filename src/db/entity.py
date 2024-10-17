@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Text, UniqueConstraint, LargeBinary, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Text, UniqueConstraint, LargeBinary, ForeignKey, text
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 
 from src.db.engine import Base, DbEngine
@@ -55,11 +55,11 @@ class Chapter(PostBase):
     created_at = Column(DateTime, nullable=False, index=True, default=datetime.now)
     updated_at = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
-    book_id = Column(Integer, nullable=False)
+    book_id = Column(Integer, ForeignKey('books.id'), nullable=False)
     no = Column(Integer, nullable=False)
 
     __table_args__ = (
-        UniqueConstraint('book_id', 'no'),
+        UniqueConstraint('book_id', 'no', name='udx_bookId_chapterNo'),
     )
 
 
@@ -76,7 +76,7 @@ class Sentence(Base):
     text = Column(String(2000), nullable=False)
 
     __table_args__ = (
-        UniqueConstraint('source_id', "sentence_no",  'source_type'),
+        UniqueConstraint('source_id', "sentence_no",  'source_type', name='udx_sourceId_sentenceNo_sourceType'),
     )
 
 
@@ -87,9 +87,13 @@ class SentenceAudio(Base):
     created_at = Column(DateTime, nullable=False, index=True, default=datetime.now)
     updated_at = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
-    sentence_id = Column(Integer, ForeignKey('sentences.id'))
+    sentence_id = Column(Integer, ForeignKey('sentences.id'), nullable=False)
     voice = Column(String(10), nullable=False)
     audio = Column(LargeBinary, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint('sentence_id', 'voice', name='udx_sentenceId_voice'),
+    )
 
 
 class SentenceTranslation(Base):
@@ -99,12 +103,12 @@ class SentenceTranslation(Base):
     created_at = Column(DateTime, nullable=False, index=True, default=datetime.now)
     updated_at = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
-    sentence_id = Column(Integer, ForeignKey('sentences.id'))
+    sentence_id = Column(Integer, ForeignKey('sentences.id'), nullable=False)
     lang = Column(String(10), nullable=False)
     translation = Column(Text, nullable=False)
 
     __table_args__ = (
-        UniqueConstraint('sentence_id', 'lang'),
+        UniqueConstraint('sentence_id', 'lang', name='udx_sentenceId_lang'),
     )
 
 
@@ -134,6 +138,10 @@ class Vocabulary(Base):
 
     word = Column(String(50), nullable=False, unique=True)
 
+    __table_args__ = (
+        {'mysql_charset': 'utf8mb4', 'mysql_collate': 'utf8mb4_bin'},
+    )
+
 
 class Glossary(Base):
     __tablename__ = 'glossaries'
@@ -142,11 +150,11 @@ class Glossary(Base):
     created_at = Column(DateTime, nullable=False, index=True, default=datetime.now)
     updated_at = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
-    user_id = Column(Integer, ForeignKey('users.id'))
-    vocabulary_id = Column(Integer, ForeignKey('vocabulary.id'))
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    vocabulary_id = Column(Integer, ForeignKey('vocabulary.id'), nullable=False)
 
     __table_args__ = (
-        UniqueConstraint('user_id', 'vocabulary_id'),
+        UniqueConstraint('user_id', 'vocabulary_id', name='udx_userId_vocabularyId'),
     )
 
 
@@ -157,11 +165,11 @@ class SentenceVocabulary(Base):
     created_at = Column(DateTime, nullable=False, index=True, default=datetime.now)
     updated_at = Column(DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
 
-    sentence_id = Column(Integer, ForeignKey('sentences.id'))
-    vocabulary_id = Column(Integer, ForeignKey('vocabulary.id'))
+    sentence_id = Column(Integer, ForeignKey('sentences.id'), nullable=False)
+    vocabulary_id = Column(Integer, ForeignKey('vocabulary.id'), nullable=False)
 
     __table_args__ = (
-        UniqueConstraint('sentence_id', 'vocabulary_id'),
+        UniqueConstraint('sentence_id', 'vocabulary_id', name='udx_sentenceId_vocabularyId'),
     )
 
 

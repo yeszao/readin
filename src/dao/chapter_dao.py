@@ -25,6 +25,13 @@ class ChapterDao:
             return chapter.id
 
     @staticmethod
+    def add_one(chapter: Chapter) -> int:
+        with DbSession() as session:
+            session.add(chapter)
+            session.commit()
+            return chapter.id
+
+    @staticmethod
     def get_one(book_id: int, chapter_no: int) -> Chapter:
         with DbSession() as session:
             return session.query(Chapter).filter(

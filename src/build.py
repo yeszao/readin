@@ -5,6 +5,9 @@ from src.constants.config import BOOKS_DIR, LOG_DIR
 from src.constants.enums import SentenceSource
 from src.dao.book_dao import BookDao
 from src.dao.chapter_dao import ChapterDao
+from src.dao.sentence_audio_dao import SentenceAudioDao
+from src.dao.sentence_dao import SentenceDao
+from src.dao.sentence_translation_dao import SentenceTranslationDao
 from src.dao.sentence_vocabulary_dao import SentenceVocabularyDao
 from src.db.entity import Book, Chapter
 from src.dto.html_dto import ParsedHtml
@@ -34,18 +37,28 @@ def build_book(book: Book):
 
     for future in as_completed(futures):
         chapter_no, parsed = future.result()
+        old_chapter = ChapterDao.get_one(book.id, chapter_no)
 
-        chapter = Chapter()
-        chapter.no = chapter_no
-        chapter.book_id = book.id
+        if old_chapter and old_chapter.sentence_count == parsed.sentence_count:
+            logging.info(f"Sentences of chapter #{chapter_no} keeps same, SKIPPED saving.")
+            continue
+        elif old_chapter and old_chapter.sentence_count != parsed.sentence_count:
+            chapter_id = old_chapter.id
+            SentenceVocabularyDao.remove_all(chapter_id)
+            SentenceAudioDao.remove_all(chapter_id)
+            SentenceTranslationDao.remove_all(chapter_id)
+            SentenceDao.remove_all(SentenceSource.CHAPTER.value, chapter_id)
+        else:
+            chapter = Chapter()
+            chapter.no = chapter_no
+            chapter.book_id = book.id
 
-        chapter.tagged_content_html = parsed.tagged_content_html
-        chapter.sentence_count = parsed.sentence_count
-        chapter.word_count = parsed.word_count
-        chapter.vocabulary_count = parsed.vocabulary_count
-        chapter_id = ChapterDao.merge(chapter)
+            chapter.tagged_content_html = parsed.tagged_content_html
+            chapter.sentence_count = parsed.sentence_count
+            chapter.word_count = parsed.word_count
+            chapter.vocabulary_count = parsed.vocabulary_count
+            chapter_id = ChapterDao.add_one(chapter)
 
-        # todo: don't update sentences if the count of sentence in a chapter is the same
         SentenceVocabularyDao.batch_add(SentenceSource.CHAPTER.value, chapter_id, parsed.sentences)
 
         book_sentence_total += parsed.sentence_count

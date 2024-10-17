@@ -26,3 +26,12 @@ class SentenceDao:
                 translation=translation
             ))
             session.commit()
+
+    @staticmethod
+    def remove_all(source_type: int, source_id: int):
+        with DbSession() as session:
+            session.query(Sentence).filter(
+                Sentence.source_type == source_type,
+                Sentence.source_id == source_id
+            ).delete()
+            session.commit()
